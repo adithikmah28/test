@@ -40,10 +40,16 @@
         const movieSectionsContainer = document.getElementById('movie-sections');
         const searchInput = document.getElementById('search-input');
 
+        // ===========================================
+        // INI FUNGSI YANG SUDAH DIPERBAIKI
+        // ===========================================
         async function fetchData(endpoint) {
-            const url = `${apiUrlBase}/${endpoint}?api_key=${apiKey}&language=en-US`;
+            // Cek apakah endpoint sudah punya parameter ('?')
+            const separator = endpoint.includes('?') ? '&' : '?';
+            const url = `${apiUrlBase}/${endpoint}${separator}api_key=${apiKey}&language=en-US`;
             try {
                 const response = await fetch(url);
+                if (!response.ok) throw new Error("Network response was not ok");
                 return await response.json();
             } catch (error) {
                 console.error("Fetch Error:", error);
@@ -71,7 +77,7 @@
         }
 
         async function initializeHomepage() {
-            movieSectionsContainer.innerHTML = '<p class="text-center text-xl">Loading...</p>';
+            movieSectionsContainer.innerHTML = '<p class="text-center text-xl animate-pulse">Memuat film populer...</p>';
             const [trending, nowPlaying, topRated] = await Promise.all([
                 fetchData('trending/movie/week'),
                 fetchData('movie/now_playing'),
@@ -86,16 +92,18 @@
         }
 
         async function searchMovies(query) {
-             if (query.trim() === '') {
+             const trimmedQuery = query.trim();
+             if (trimmedQuery === '') {
                 initializeHomepage();
                 return;
             }
-            movieSectionsContainer.innerHTML = `<p class="text-center text-xl">Mencari "${query}"...</p>`;
-            const searchData = await fetchData(`search/movie?query=${encodeURIComponent(query)}`);
+            movieSectionsContainer.innerHTML = `<p class="text-center text-xl animate-pulse">Mencari "${trimmedQuery}"...</p>`;
+            // Endpoint untuk search sudah benar
+            const searchData = await fetchData(`search/movie?query=${encodeURIComponent(trimmedQuery)}`);
             if (searchData && searchData.results.length > 0) {
-                 movieSectionsContainer.innerHTML = createSection(`Hasil untuk "${query}"`, searchData.results);
+                 movieSectionsContainer.innerHTML = createSection(`Hasil untuk "${trimmedQuery}"`, searchData.results);
             } else {
-                 movieSectionsContainer.innerHTML = `<p class="text-center text-xl">Tidak ada hasil untuk "${query}".</p>`;
+                 movieSectionsContainer.innerHTML = `<p class="text-center text-xl">Tidak ada hasil untuk "${trimmedQuery}".</p>`;
             }
         }
         
