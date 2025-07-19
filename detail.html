@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Film</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .text-shadow { text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+    <!-- Header -->
+    <header class="bg-gray-800/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
+        <nav class="container mx-auto px-4 py-4">
+            <a href="index.html" class="text-2xl font-bold text-red-600 hover:text-red-500 transition-colors">← Kembali ke Beranda</a>
+        </nav>
+    </header>
+
+    <!-- Konten Detail Film -->
+    <main id="movie-detail-content" class="min-h-screen">
+        <!-- Konten akan diisi oleh JavaScript. Tampilkan loading dulu -->
+        <div class="h-screen flex justify-center items-center">
+            <p class="text-2xl">Loading detail film...</p>
+        </div>
+    </main>
+
+    <script>
+        // ===============================================
+        // KONFIGURASI - JANGAN LUPA GANTI API KEY DI SINI!
+        // ===============================================
+        const apiKey = 'GANTI_DENGAN_API_KEY_KAMU'; // <-- GANTI INI
+        const apiUrlBase = 'https://api.themoviedb.org/3';
+        const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
+        const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
+
+        const movieDetailContainer = document.getElementById('movie-detail-content');
+
+        // Fungsi untuk mengambil detail film dari API
+        async function fetchMovieDetail(movieId) {
+            // Kita gunakan 'append_to_response' untuk mengambil video (trailer) dan credits (pemeran) dalam 1x request
+            const url = `${apiUrlBase}/movie/${movieId}?api_key=${apiKey}&language=en-US&append_to_response=videos,credits`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Film tidak ditemukan');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error(error);
+                return null;
+            }
+        }
+
+        // Fungsi untuk menampilkan detail film di halaman
+        function displayMovieDetail(movie) {
+            // Cari trailer resmi dari YouTube
+            const officialTrailer = movie.videos.results.find(video => video.site === 'YouTube' && video.type === 'Trailer');
+            const trailerKey = officialTrailer ? officialTrailer.key : (movie.videos.results.length > 0 ? movie.videos.results[0].key : null);
+
+            // Ambil 5 pemeran utama
+            const cast = movie.credits.cast.slice(0, 5).map(c => c.name).join(', ');
+
+            // Ambil genre
+            const genres = movie.genres.map(g => g.name).join(', ');
+            
+            // Format tanggal rilis
+            const releaseDate = new Date(movie.release_date).toLocaleDateString('id-ID', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            const detailHTML = `
+                <!-- Backdrop Section -->
+                <div class="h-[60vh] md:h-[80vh] w-full relative">
+                    <div class="absolute inset-0 bg-black/60 z-10"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent z-10"></div>
+                    <img src="${imageBaseUrl}${movie.backdrop_path}" alt="Backdrop ${movie.title}" class="h-full w-full object-cover">
+                </div>
+
+                <!-- Info Section -->
+                <div class="container mx-auto px-4 md:px-8 pb-16 -mt-48 relative z-20">
+                    <div class="flex flex-col md:flex-row gap-8">
+                        <!-- Poster -->
+                        <div class="w-1/2 md:w-1/4 flex-shrink-0 mx-auto md:mx-0">
+                            <img src="${imageCardBaseUrl}${movie.poster_path}" alt="Poster ${movie.title}" class="rounded-lg shadow-2xl">
+                        </div>
+                        <!-- Details -->
+                        <div class="flex-grow text-center md:text-left">
+                            <h1 class="text-4xl lg:text-5xl font-bold text-shadow">${movie.title} (${movie.release_date.split('-')[0]})</h1>
+                            <p class="text-lg text-gray-400 italic mt-2">${movie.tagline}</p>
+                            <div class="flex items-center justify-center md:justify-start gap-4 my-4">
+                                <span class="bg-yellow-500 text-black font-bold py-1 px-3 rounded">IMDb ${movie.vote_average.toFixed(1)}</span>
+                                <span class="text-gray-300">${movie.runtime} menit</span>
+                                <span class="text-gray-300 hidden sm:block">${genres}</span>
+                            </div>
+                            
+                            <h2 class="text-2xl font-semibold mt-6 mb-2">Sinopsis</h2>
+                            <p class="text-gray-300 leading-relaxed">${movie.overview}</p>
+
+                            <h2 class="text-2xl font-semibold mt-6 mb-2">Pemeran Utama</h2>
+                            <p class="text-gray-400">${cast}</p>
+
+                            ${trailerKey ? `
+                            <a href="https://www.youtube.com/watch?v=${trailerKey}" target="_blank" rel="noopener noreferrer" class="inline-block bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors mt-8 text-lg">
+                                Tonton Trailer
+                            </a>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            movieDetailContainer.innerHTML = detailHTML;
+        }
+
+        // Fungsi untuk menampilkan error jika film tidak ada
+        function displayError() {
+            movieDetailContainer.innerHTML = `
+                <div class="h-screen flex flex-col justify-center items-center text-center px-4">
+                    <h1 class="text-5xl text-red-500 font-bold">Oops!</h1>
+                    <p class="text-2xl mt-4">Detail film tidak dapat ditemukan.</p>
+                    <p class="text-gray-400 mt-2">Mungkin ID film tidak valid atau terjadi kesalahan jaringan.</p>
+                </div>`;
+        }
+        
+        // Fungsi utama yang dijalankan saat halaman dimuat
+        async function main() {
+            // 1. Ambil ID film dari URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const movieId = urlParams.get('id');
+
+            if (movieId) {
+                // 2. Ambil data dari API
+                const movie = await fetchMovieDetail(movieId);
+                if (movie) {
+                    // 3. Tampilkan data ke halaman
+                    document.title = `${movie.title} - MovieLix`; // Update judul tab browser
+                    displayMovieDetail(movie);
+                } else {
+                    displayError();
+                }
+            } else {
+                // Jika tidak ada ID di URL
+                displayError();
+            }
+        }
+        
+        // Jalankan fungsi utama
+        document.addEventListener('DOMContentLoaded', main);
+    </script>
+</body>
+</html>
