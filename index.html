@@ -80,134 +80,157 @@
     </footer>
 
     <script>
-        // ===============================================
-        // KONFIGURASI - JANGAN LUPA GANTI API KEY DI SINI!
-        // ===============================================
-        const apiKey = '8c79e8986ea53efac75026e541207aa3'; // <-- GANTI INI
-        const apiUrlBase = 'https://api.themoviedb.org/3';
-        const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
-        const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
+    // ===============================================
+    // KONFIGURASI - JANGAN LUPA GANTI API KEY DI SINI!
+    // ===============================================
+    const apiKey = '8c79e8986ea53efac75026e541207aa3'; // <-- GANTI INI
+    const apiUrlBase = 'https://api.themoviedb.org/3';
+    const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
+    const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
-        // ===============================================
-        // ELEMEN DOM
-        // ===============================================
-        const heroSection = document.getElementById('hero-section');
-        const heroContent = document.getElementById('hero-content');
-        const trendingMoviesContainer = document.getElementById('trending-movies');
-        const nowPlayingMoviesContainer = document.getElementById('now-playing-movies');
-        const searchInput = document.getElementById('search-input');
-        const searchResultsSection = document.getElementById('search-results-section');
-        const searchResultsContainer = document.getElementById('search-results');
-        const mainSections = document.querySelectorAll('main section:not(#search-results-section)');
+    // ===============================================
+    // ELEMEN DOM
+    // ===============================================
+    const heroSection = document.getElementById('hero-section');
+    const heroContent = document.getElementById('hero-content');
+    const trendingMoviesContainer = document.getElementById('trending-movies');
+    const nowPlayingMoviesContainer = document.getElementById('now-playing-movies');
+    const searchInput = document.getElementById('search-input');
+    const searchResultsSection = document.getElementById('search-results-section');
+    const searchResultsContainer = document.getElementById('search-results');
+    // Ambil semua section utama KECUALI section hasil pencarian
+    const mainSections = document.querySelectorAll('main > section:not(#search-results-section)');
 
 
-        // ===============================================
-        // FUNGSI UNTUK MENGAMBIL DATA DARI API
-        // ===============================================
-        async function fetchMovies(endpoint) {
-            try {
-                const response = await fetch(`${apiUrlBase}/${endpoint}?api_key=${apiKey}&language=en-US&page=1`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                return data.results;
-            } catch (error) {
-                console.error('Fetch error:', error);
-                return [];
+    // ===============================================
+    // FUNGSI UNTUK MENGAMBIL DATA DARI API
+    // ===============================================
+    // Fungsi ini sekarang lebih fleksibel untuk menangani endpoint yang berbeda
+    async function fetchData(endpoint) {
+        // Cek apakah endpoint sudah mengandung tanda tanya (?)
+        const separator = endpoint.includes('?') ? '&' : '?';
+        const url = `${apiUrlBase}/${endpoint}${separator}api_key=${apiKey}&language=en-US`;
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+            const data = await response.json();
+            return data.results;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            // Tampilkan pesan error di konsol untuk debugging
+            return [];
+        }
+    }
+
+    // ===============================================
+    // FUNGSI UNTUK MENAMPILKAN FILM (Tidak ada perubahan)
+    // ===============================================
+    function displayMovies(movies, container) {
+        container.innerHTML = ''; // Kosongkan container dulu
+        if (movies.length === 0) {
+            container.innerHTML = `<p class="col-span-full text-center text-gray-400">Tidak ada film untuk ditampilkan.</p>`;
+            return;
         }
 
-        // ===============================================
-        // FUNGSI UNTUK MENAMPILKAN FILM
-        // ===============================================
-        function displayMovies(movies, container) {
-            container.innerHTML = ''; // Kosongkan container dulu
-            movies.forEach(movie => {
-                if(movie.poster_path) { // Hanya tampilkan film yang punya poster
-                    const movieCard = `
-                        <div class="transform hover:scale-105 transition-transform duration-300 cursor-pointer">
-                            <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg">
+        movies.forEach(movie => {
+            if (movie.poster_path) { // Hanya tampilkan film yang punya poster
+                const movieCard = `
+                    <div class="transform hover:scale-105 transition-transform duration-300 cursor-pointer group">
+                        <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg">
+                        <div class="absolute bottom-0 left-0 right-0 bg-black/70 p-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <h3 class="text-white text-sm font-bold truncate">${movie.title}</h3>
                         </div>
-                    `;
-                    container.innerHTML += movieCard;
-                }
-            });
-        }
-        
-        // ===============================================
-        // FUNGSI UNTUK MENGATUR HERO SECTION
-        // ===============================================
-        function displayHero(movie) {
-            heroSection.style.backgroundImage = `url(${imageBaseUrl}${movie.backdrop_path})`;
-            
-            heroContent.innerHTML = `
-                <h1 class="text-4xl md:text-6xl font-bold mb-4">${movie.title}</h1>
-                <p class="max-w-xl mb-4 text-gray-300 hidden md:block">${movie.overview.substring(0, 150)}...</p>
-                <div class="flex items-center space-x-4 mb-6">
-                    <span class="bg-yellow-500 text-black font-bold py-1 px-3 rounded">IMDb ${movie.vote_average.toFixed(1)}</span>
-                    <span class="text-gray-300">${movie.release_date.split('-')[0]}</span>
-                </div>
-                <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-colors">
-                    Watch Trailer
-                </button>
-            `;
-        }
-
-        // ===============================================
-        // FUNGSI PENCARIAN
-        // ===============================================
-        async function searchMovies(query) {
-             if (query.trim() === '') {
-                // Jika input kosong, tampilkan section utama dan sembunyikan hasil pencarian
-                searchResultsSection.classList.add('hidden');
-                mainSections.forEach(section => section.classList.remove('hidden'));
-                return;
+                    </div>
+                `;
+                container.innerHTML += movieCard;
             }
-
-            // Sembunyikan section utama dan tampilkan hasil pencarian
-            mainSections.forEach(section => section.classList.add('hidden'));
-            searchResultsSection.classList.remove('hidden');
-
-            const movies = await fetchMovies(`search/movie?query=${encodeURIComponent(query)}`);
-            if(movies.length > 0) {
-                displayMovies(movies, searchResultsContainer);
-            } else {
-                searchResultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">Film tidak ditemukan.</p>`;
-            }
-        }
-        
-        // ===============================================
-        // INISIALISASI HALAMAN
-        // ===============================================
-        async function initializePage() {
-            // Ambil data film trending
-            const trendingMovies = await fetchMovies('trending/movie/week');
-            if (trendingMovies.length > 0) {
-                displayHero(trendingMovies[0]); // Jadikan film trending pertama sebagai hero
-                displayMovies(trendingMovies, trendingMoviesContainer);
-            }
-            
-            // Ambil data film yang sedang tayang
-            const nowPlayingMovies = await fetchMovies('movie/now_playing');
-            displayMovies(nowPlayingMovies, nowPlayingMoviesContainer);
-        }
-
-        // ===============================================
-        // EVENT LISTENER
-        // ===============================================
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            // Tambahkan delay agar tidak melakukan pencarian setiap kali mengetik
-            searchTimeout = setTimeout(() => {
-                searchMovies(e.target.value);
-            }, 500); // 500ms delay
         });
+    }
 
-        // Jalankan semua saat halaman dimuat
-        document.addEventListener('DOMContentLoaded', initializePage);
+    // ===============================================
+    // FUNGSI UNTUK MENGATUR HERO SECTION (Tidak ada perubahan)
+    // ===============================================
+    function displayHero(movie) {
+        if (!movie || !movie.backdrop_path) return;
+        heroSection.style.backgroundImage = `url(${imageBaseUrl}${movie.backdrop_path})`;
 
-    </script>
+        heroContent.innerHTML = `
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 text-shadow-lg">${movie.title}</h1>
+            <p class="max-w-xl mb-4 text-gray-200 hidden md:block text-shadow-md">${movie.overview.substring(0, 150)}...</p>
+            <div class="flex items-center space-x-4 mb-6">
+                <span class="bg-yellow-500 text-black font-bold py-1 px-3 rounded">IMDb ${movie.vote_average.toFixed(1)}</span>
+                <span class="text-gray-200">${movie.release_date ? movie.release_date.split('-')[0] : ''}</span>
+            </div>
+            <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-colors">
+                Watch Trailer
+            </button>
+        `;
+    }
+
+    // ===============================================
+    // FUNGSI PENCARIAN (INI YANG DIPERBAIKI)
+    // ===============================================
+    async function searchMovies(query) {
+        if (query.trim() === '') {
+            // Jika input kosong, tampilkan section utama dan sembunyikan hasil pencarian
+            searchResultsSection.classList.add('hidden');
+            mainSections.forEach(section => section.classList.remove('hidden'));
+            return;
+        }
+
+        // Sembunyikan section utama dan tampilkan hasil pencarian
+        mainSections.forEach(section => section.classList.add('hidden'));
+        searchResultsSection.classList.remove('hidden');
+        searchResultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">Mencari film...</p>`;
+
+        // Endpoint untuk search sudah mengandung '?query='
+        const endpoint = `search/movie?query=${encodeURIComponent(query)}`;
+        const movies = await fetchData(endpoint); // Gunakan fungsi fetchData yang sudah diperbaiki
+
+        if (movies.length > 0) {
+            displayMovies(movies, searchResultsContainer);
+        } else {
+            searchResultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">Film "${query}" tidak ditemukan.</p>`;
+        }
+    }
+
+    // ===============================================
+    // INISIALISASI HALAMAN
+    // ===============================================
+    async function initializePage() {
+        // Tampilkan loading di awal
+        trendingMoviesContainer.innerHTML = `<p class="col-span-full text-center">Loading...</p>`;
+        nowPlayingMoviesContainer.innerHTML = `<p class="col-span-full text-center">Loading...</p>`;
+
+        // Ambil data film trending
+        const trendingMovies = await fetchData('trending/movie/week');
+        if (trendingMovies.length > 0) {
+            displayHero(trendingMovies[0]);
+            displayMovies(trendingMovies, trendingMoviesContainer);
+        }
+
+        // Ambil data film yang sedang tayang
+        const nowPlayingMovies = await fetchData('movie/now_playing');
+        displayMovies(nowPlayingMovies, nowPlayingMoviesContainer);
+    }
+
+    // ===============================================
+    // EVENT LISTENER
+    // ===============================================
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        // Tambahkan delay agar tidak melakukan pencarian setiap kali mengetik
+        searchTimeout = setTimeout(() => {
+            searchMovies(e.target.value);
+        }, 300); // 300ms delay
+    });
+
+    // Jalankan semua saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', initializePage);
+</script>
 </body>
 </html>
