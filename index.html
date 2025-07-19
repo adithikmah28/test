@@ -3,230 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovieLix - Panduan Nonton Film</title>
-    <!-- Memuat Tailwind CSS -->
+    <title>MovieLix - Temukan Film Favoritmu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #ef4444; }
-        .text-shadow { text-shadow: 2px 2px 8px rgba(0, 0, 0, 1); }
-        .hero-gradient { background: linear-gradient(to top, rgba(0,0,0,1) 10%, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0) 60%); }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-black text-white font-sans">
+<body class="bg-gray-900 text-white font-sans">
 
-    <!-- Header (Tetap terlihat) -->
-    <header class="bg-black/30 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+    <header class="bg-gray-800/50 backdrop-blur-sm sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="#" onclick="window.location.reload()" class="text-3xl font-bold text-red-600 cursor-pointer tracking-wider">MOVIELIX</a>
+            <a href="index.html" class="text-2xl font-bold text-red-600">MovieLix</a>
             <div class="relative">
-                <input type="text" id="search-input" placeholder="Cari film..." class="bg-gray-800/50 border border-gray-700 text-white px-4 py-2 rounded-full w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all">
+                <input type="text" id="search-input" placeholder="Cari film..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-600">
             </div>
         </nav>
     </header>
 
-    <!-- KONTEN UTAMA: Akan disembunyikan saat detail film tampil -->
-    <main id="main-content" class="pt-20">
-        <!-- Konten homepage (trending, dll) akan diisi di sini -->
+    <main class="container mx-auto px-4 py-8">
+        <div id="movie-sections">
+            <!-- Sections akan diisi oleh JS -->
+        </div>
     </main>
 
-    <!-- TAMPILAN DETAIL FILM (awalnya kosong) -->
-    <div id="detail-view">
-        <!-- Konten detail akan di-generate oleh JavaScript di sini -->
-    </div>
-
-    <footer id="main-footer" class="text-center py-8 text-gray-500 border-t border-gray-800">
-        <p>Dibuat sebagai web portfolio menggunakan TMDb API.</p>
-        <p>MovieLix tidak menyimpan file film di server sendiri.</p>
+    <footer class="text-center py-8 text-gray-500 border-t border-gray-800">
+        <p>Dibuat dengan TMDb API.</p>
     </footer>
 
     <script>
-        // ===============================================
-        // KONFIGURASI - GANTI API KEY KAMU DI SINI!
-        // ===============================================
-        const apiKey = '8c79e8986ea53efac75026e541207aa3'; // <-- WAJIB GANTI INI
+        const apiKey = '8c79e8986ea53efac75026e541207aa3';
         const apiUrlBase = 'https://api.themoviedb.org/3';
-        const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
         const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
-        // ===============================================
-        // ELEMEN DOM UTAMA
-        // ===============================================
-        const mainContent = document.getElementById('main-content');
-        const mainFooter = document.getElementById('main-footer');
-        const detailView = document.getElementById('detail-view');
+        const movieSectionsContainer = document.getElementById('movie-sections');
         const searchInput = document.getElementById('search-input');
-        
-        // ===============================================
-        // FUNGSI FETCH DATA
-        // ===============================================
+
         async function fetchData(endpoint) {
-            const separator = endpoint.includes('?') ? '&' : '?';
-            const url = `${apiUrlBase}/${endpoint}${separator}api_key=${apiKey}&language=en-US`;
+            const url = `${apiUrlBase}/${endpoint}?api_key=${apiKey}&language=en-US`;
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return await response.json();
             } catch (error) {
-                console.error('Fetch error:', error); return null;
+                console.error("Fetch Error:", error);
+                return null;
             }
         }
         
-        // ===============================================
-        // FUNGSI PEMBUATAN KONTEN (RENDERING)
-        // ===============================================
         function createMovieCard(movie) {
-            const movieCard = document.createElement('div');
-            movieCard.className = 'group relative cursor-pointer';
-            movieCard.innerHTML = `
-                <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg transform group-hover:scale-105 transition-transform duration-300">
-                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-center p-2 rounded-lg">
-                    <h3 class="text-white font-bold">${movie.title}</h3>
-                </div>
-            `;
-            // PENTING: Saat kartu rekomendasi diklik, ia akan memuat halaman detail BARU
-            movieCard.addEventListener('click', () => showMovieDetail(movie.id));
-            return movieCard;
+             if (!movie.poster_path) return '';
+             return `
+                <a href="detail.html?id=${movie.id}" class="block group">
+                    <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg transform group-hover:scale-105 transition-transform duration-300">
+                </a>
+             `;
         }
 
         function createSection(title, movies) {
-            const section = document.createElement('section');
-            section.className = 'mb-12';
-            const grid = document.createElement('div');
-            grid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4';
-            movies.forEach(movie => {
-                if (movie.poster_path) grid.appendChild(createMovieCard(movie));
-            });
-            section.innerHTML = `<div class="container mx-auto px-4"><h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">${title}</h2></div>`;
-            section.querySelector('div').appendChild(grid);
-            return section;
-        }
-
-        function renderWatchProviders(providers) {
-            if (!providers || !providers.results.ID || !providers.results.ID.flatrate) {
-                return '<p class="text-gray-400">Saat ini tidak tersedia di layanan streaming langganan di Indonesia.</p>';
-            }
-            const providerLogos = providers.results.ID.flatrate.map(p => 
-                `<a href="${providers.results.ID.link}" target="_blank" rel="noopener noreferrer" class="transform hover:scale-110 transition-transform">
-                    <img src="${imageCardBaseUrl}${p.logo_path}" alt="${p.provider_name}" class="w-12 h-12 rounded-lg">
-                 </a>`
-            ).join('');
-            return `<div class="flex items-center gap-4">${providerLogos}</div>`;
-        }
-
-        function renderMovieDetail(movie) {
-            const officialTrailer = movie.videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') || movie.videos.results[0];
-            const trailerKey = officialTrailer ? officialTrailer.key : null;
-            
-            detailView.innerHTML = `
-                <!-- BAGIAN HERO DENGAN TRAILER -->
-                <div class="relative h-screen w-full overflow-hidden">
-                    ${trailerKey ? `
-                        <iframe class="absolute top-1/2 left-1/2 w-[200%] h-[200%] -translate-x-1/2 -translate-y-1/2 pointer-events-none" src="https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&loop=1&playlist=${trailerKey}&controls=0&showinfo=0&rel=0" frameborder="0" allow="autoplay"></iframe>
-                    `: `<img src="${imageBaseUrl}${movie.backdrop_path}" class="absolute w-full h-full object-cover">`}
-                    <div class="absolute inset-0 hero-gradient"></div>
-                    <div class="absolute inset-0 container mx-auto px-4 flex flex-col justify-end pb-20 text-shadow">
-                        <h1 class="text-4xl md:text-6xl font-bold">${movie.title}</h1>
-                        <p class="max-w-3xl mt-4 text-lg text-gray-200">${movie.overview}</p>
-                        <div class="mt-6">
-                            <h2 class="text-xl font-semibold mb-2">Tonton Sekarang di:</h2>
-                            ${renderWatchProviders(movie['watch/providers'])}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BAGIAN REKOMENDASI FILM SERUPA -->
-                <div class="container mx-auto px-4 py-12">
-                    <h2 class="text-3xl font-bold mb-6">Mungkin Kamu Juga Suka</h2>
-                    <div id="similar-movies-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        <!-- Kartu film rekomendasi akan diisi di sini -->
-                    </div>
-                </div>
+            const moviesHTML = movies.map(createMovieCard).join('');
+            return `
+                <section class="mb-12">
+                    <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">${title}</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">${moviesHTML}</div>
+                </section>
             `;
         }
 
-        // ===============================================
-        // LOGIKA UTAMA
-        // ===============================================
-        async function showHomepage() {
-            mainContent.innerHTML = '<p class="text-center text-2xl animate-pulse">Memuat film-film terbaik...</p>';
+        async function initializeHomepage() {
+            movieSectionsContainer.innerHTML = '<p class="text-center text-xl">Loading...</p>';
             const [trending, nowPlaying, topRated] = await Promise.all([
                 fetchData('trending/movie/week'),
                 fetchData('movie/now_playing'),
                 fetchData('movie/top_rated')
             ]);
-            mainContent.innerHTML = '';
-            if (trending) mainContent.appendChild(createSection('Trending Minggu Ini', trending.results));
-            if (nowPlaying) mainContent.appendChild(createSection('Sedang Tayang', nowPlaying.results));
-            if (topRated) mainContent.appendChild(createSection('Rating Tertinggi', topRated.results));
+            
+            let content = '';
+            if (trending) content += createSection('Trending Minggu Ini', trending.results);
+            if (nowPlaying) content += createSection('Sedang Tayang', nowPlaying.results);
+            if (topRated) content += createSection('Rating Tertinggi', topRated.results);
+            movieSectionsContainer.innerHTML = content;
         }
 
-        async function showMovieDetail(movieId) {
-            mainContent.classList.add('hidden');
-            mainFooter.classList.add('hidden');
-            detailView.innerHTML = `<div class="h-screen w-full flex justify-center items-center bg-black"><p class="text-2xl animate-pulse">Mempersiapkan pengalaman sinematik...</p></div>`;
-            window.scrollTo(0, 0);
-
-            // === PERUBAHAN KUNCI ADA DI SINI ===
-            // Ambil detail film DAN film serupa secara bersamaan
-            const [movie, similarMovies] = await Promise.all([
-                fetchData(`movie/${movieId}?append_to_response=videos,credits,watch/providers`),
-                fetchData(`movie/${movieId}/similar`)
-            ]);
-            // ====================================
-
-            if (movie) {
-                // 1. Render halaman detail utama
-                renderMovieDetail(movie);
-                
-                // 2. Cari grid untuk film serupa yang sudah kita siapkan di renderMovieDetail
-                const similarGrid = document.getElementById('similar-movies-grid');
-
-                // 3. Isi grid tersebut dengan data film serupa
-                if (similarMovies && similarMovies.results.length > 0) {
-                    similarMovies.results.forEach(similarMovie => {
-                        if (similarMovie.poster_path) {
-                            similarGrid.appendChild(createMovieCard(similarMovie));
-                        }
-                    });
-                } else {
-                    similarGrid.innerHTML = '<p class="col-span-full text-gray-400">Tidak ada rekomendasi film serupa.</p>';
-                }
-            } else {
-                detailView.innerHTML = `Error memuat detail.`;
+        async function searchMovies(query) {
+             if (query.trim() === '') {
+                initializeHomepage();
+                return;
             }
-        }
-
-        async function showSearchResults(query) {
-            mainContent.innerHTML = `<div class="container mx-auto px-4"><p class="text-center text-2xl animate-pulse">Mencari "${query}"...</p></div>`;
-            const results = await fetchData(`search/movie?query=${encodeURIComponent(query)}`);
-            mainContent.innerHTML = '';
-            if (results && results.results.length > 0) {
-                mainContent.appendChild(createSection(`Hasil Pencarian untuk "${query}"`, results.results));
+            movieSectionsContainer.innerHTML = `<p class="text-center text-xl">Mencari "${query}"...</p>`;
+            const searchData = await fetchData(`search/movie?query=${encodeURIComponent(query)}`);
+            if (searchData && searchData.results.length > 0) {
+                 movieSectionsContainer.innerHTML = createSection(`Hasil untuk "${query}"`, searchData.results);
             } else {
-                mainContent.innerHTML = `<div class="container mx-auto px-4"><p class="text-center text-2xl">Yah, film "${query}" tidak ditemukan.</p></div>`;
+                 movieSectionsContainer.innerHTML = `<p class="text-center text-xl">Tidak ada hasil untuk "${query}".</p>`;
             }
         }
         
-        // ===============================================
-        // EVENT LISTENERS
-        // ===============================================
         let searchTimeout;
         searchInput.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
-            const query = e.target.value.trim();
-            if (query === '') {
-                showHomepage();
-                return;
-            }
-            searchTimeout = setTimeout(() => {
-                showSearchResults(query);
-            }, 500);
+            searchTimeout = setTimeout(() => searchMovies(e.target.value), 500);
         });
-
-        document.addEventListener('DOMContentLoaded', showHomepage);
+        
+        document.addEventListener('DOMContentLoaded', initializeHomepage);
     </script>
 </body>
 </html>
