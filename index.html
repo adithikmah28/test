@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieLix - Mirip Cineby</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Style tambahan untuk scrollbar custom (opsional, biar keren) */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #111827; /* bg-gray-900 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151; /* bg-gray-700 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563; /* bg-gray-600 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans">
+
+    <!-- Header / Navigasi -->
+    <header class="bg-gray-800/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-red-600">MovieLix</a>
+            <div class="relative">
+                <input type="text" id="search-input" placeholder="Cari film..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 pt-24">
+        <!-- Hero Section -->
+        <section id="hero-section" class="mb-12 relative rounded-lg overflow-hidden h-[60vh] flex items-end p-8">
+             <!-- Konten Hero akan diisi oleh JavaScript -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+            <div id="hero-content" class="relative z-10">
+                <!-- Konten detail hero akan diisi oleh JavaScript -->
+            </div>
+        </section>
+
+        <!-- Bagian Film Trending -->
+        <section id="trending-section" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Trending Movies</h2>
+            <div id="trending-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- Poster film akan diisi oleh JavaScript -->
+            </div>
+        </section>
+
+        <!-- Bagian Now Playing -->
+        <section id="now-playing-section" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Now Playing</h2>
+            <div id="now-playing-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- Poster film akan diisi oleh JavaScript -->
+            </div>
+        </section>
+
+        <!-- Hasil Pencarian -->
+        <section id="search-results-section" class="mb-12 hidden">
+            <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Search Results</h2>
+            <div id="search-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- Hasil pencarian akan diisi oleh JavaScript -->
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-8 text-gray-500">
+        <p>Dibuat dengan ❤️ menggunakan TMDb API</p>
+        <p>MovieLix © 2023</p>
+    </footer>
+
+    <script>
+        // ===============================================
+        // KONFIGURASI - JANGAN LUPA GANTI API KEY DI SINI!
+        // ===============================================
+        const apiKey = 'GANTI_DENGAN_API_KEY_KAMU'; // <-- GANTI INI
+        const apiUrlBase = 'https://api.themoviedb.org/3';
+        const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
+        const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
+
+        // ===============================================
+        // ELEMEN DOM
+        // ===============================================
+        const heroSection = document.getElementById('hero-section');
+        const heroContent = document.getElementById('hero-content');
+        const trendingMoviesContainer = document.getElementById('trending-movies');
+        const nowPlayingMoviesContainer = document.getElementById('now-playing-movies');
+        const searchInput = document.getElementById('search-input');
+        const searchResultsSection = document.getElementById('search-results-section');
+        const searchResultsContainer = document.getElementById('search-results');
+        const mainSections = document.querySelectorAll('main section:not(#search-results-section)');
+
+
+        // ===============================================
+        // FUNGSI UNTUK MENGAMBIL DATA DARI API
+        // ===============================================
+        async function fetchMovies(endpoint) {
+            try {
+                const response = await fetch(`${apiUrlBase}/${endpoint}?api_key=${apiKey}&language=en-US&page=1`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                return data.results;
+            } catch (error) {
+                console.error('Fetch error:', error);
+                return [];
+            }
+        }
+
+        // ===============================================
+        // FUNGSI UNTUK MENAMPILKAN FILM
+        // ===============================================
+        function displayMovies(movies, container) {
+            container.innerHTML = ''; // Kosongkan container dulu
+            movies.forEach(movie => {
+                if(movie.poster_path) { // Hanya tampilkan film yang punya poster
+                    const movieCard = `
+                        <div class="transform hover:scale-105 transition-transform duration-300 cursor-pointer">
+                            <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg">
+                        </div>
+                    `;
+                    container.innerHTML += movieCard;
+                }
+            });
+        }
+        
+        // ===============================================
+        // FUNGSI UNTUK MENGATUR HERO SECTION
+        // ===============================================
+        function displayHero(movie) {
+            heroSection.style.backgroundImage = `url(${imageBaseUrl}${movie.backdrop_path})`;
+            
+            heroContent.innerHTML = `
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">${movie.title}</h1>
+                <p class="max-w-xl mb-4 text-gray-300 hidden md:block">${movie.overview.substring(0, 150)}...</p>
+                <div class="flex items-center space-x-4 mb-6">
+                    <span class="bg-yellow-500 text-black font-bold py-1 px-3 rounded">IMDb ${movie.vote_average.toFixed(1)}</span>
+                    <span class="text-gray-300">${movie.release_date.split('-')[0]}</span>
+                </div>
+                <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-colors">
+                    Watch Trailer
+                </button>
+            `;
+        }
+
+        // ===============================================
+        // FUNGSI PENCARIAN
+        // ===============================================
+        async function searchMovies(query) {
+             if (query.trim() === '') {
+                // Jika input kosong, tampilkan section utama dan sembunyikan hasil pencarian
+                searchResultsSection.classList.add('hidden');
+                mainSections.forEach(section => section.classList.remove('hidden'));
+                return;
+            }
+
+            // Sembunyikan section utama dan tampilkan hasil pencarian
+            mainSections.forEach(section => section.classList.add('hidden'));
+            searchResultsSection.classList.remove('hidden');
+
+            const movies = await fetchMovies(`search/movie?query=${encodeURIComponent(query)}`);
+            if(movies.length > 0) {
+                displayMovies(movies, searchResultsContainer);
+            } else {
+                searchResultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">Film tidak ditemukan.</p>`;
+            }
+        }
+        
+        // ===============================================
+        // INISIALISASI HALAMAN
+        // ===============================================
+        async function initializePage() {
+            // Ambil data film trending
+            const trendingMovies = await fetchMovies('trending/movie/week');
+            if (trendingMovies.length > 0) {
+                displayHero(trendingMovies[0]); // Jadikan film trending pertama sebagai hero
+                displayMovies(trendingMovies, trendingMoviesContainer);
+            }
+            
+            // Ambil data film yang sedang tayang
+            const nowPlayingMovies = await fetchMovies('movie/now_playing');
+            displayMovies(nowPlayingMovies, nowPlayingMoviesContainer);
+        }
+
+        // ===============================================
+        // EVENT LISTENER
+        // ===============================================
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            // Tambahkan delay agar tidak melakukan pencarian setiap kali mengetik
+            searchTimeout = setTimeout(() => {
+                searchMovies(e.target.value);
+            }, 500); // 500ms delay
+        });
+
+        // Jalankan semua saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', initializePage);
+
+    </script>
+</body>
+</html>
