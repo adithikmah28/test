@@ -37,7 +37,7 @@
         const closePlayerBtn = document.getElementById('close-player');
 
         async function fetchMovieData(movieId) {
-            const endpoint = `movie/${movieId}?append_to_response=videos,similar`;
+            const endpoint = `movie/${movieId}?append_to_response=similar`; // Kita tidak perlu 'videos' lagi
             const url = `${apiUrlBase}/${endpoint}&api_key=${apiKey}&language=en-US`;
             try {
                 const response = await fetch(url);
@@ -50,8 +50,6 @@
         
         function renderPage(movie) {
             document.title = movie.title;
-            const officialTrailer = movie.videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') || movie.videos.results[0];
-            const trailerKey = officialTrailer ? officialTrailer.key : null;
 
             const similarMoviesHTML = movie.similar.results.slice(0, 6).map(m => {
                  if (!m.poster_path) return '';
@@ -75,7 +73,7 @@
                     <div class="md:col-span-2">
                         <h2 class="text-3xl font-bold mb-4">Sinopsis</h2>
                         <p class="text-gray-300 leading-relaxed">${movie.overview}</p>
-                        ${trailerKey ? `<button id="watch-now-btn" data-videokey="${trailerKey}" class="mt-8 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-10 rounded-full text-lg transition-transform hover:scale-105">Tonton Sekarang</button>` : ''}
+                        <button id="watch-now-btn" data-movieid="${movie.id}" class="mt-8 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-10 rounded-full text-lg transition-transform hover:scale-105">Tonton Sekarang</button>
                     </div>
                     <div>
                         <h3 class="text-2xl font-semibold mb-2">Rating</h3>
@@ -92,22 +90,29 @@
                 </div>
             `;
             
-            // Tambahkan event listener SETELAH tombolnya ada di halaman
             const watchNowBtn = document.getElementById('watch-now-btn');
-            if(watchNowBtn) {
-                watchNowBtn.addEventListener('click', () => {
-                    openPlayer(watchNowBtn.dataset.videokey);
-                });
-            }
+            watchNowBtn.addEventListener('click', () => {
+                openPlayer(watchNowBtn.dataset.movieid);
+            });
         }
 
-        function openPlayer(videoKey) {
-            playerContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${videoKey}?autoplay=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        // ===========================================
+        // INI DIA FUNGSI YANG KITA MODIFIKASI
+        // ===========================================
+        function openPlayer(movieId) {
+            // Kita susun URL embed berdasarkan format yang kita tahu
+            const streamingUrl = `https://vidlink.pro/embed/${movieId}`; 
+
+            console.log("Mencoba memuat player dari:", streamingUrl); // Pesan untuk debugging
+
+            // Tanamkan iframe dengan sumber baru
+            playerContainer.innerHTML = `<iframe class="w-full h-full" src="${streamingUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            
             playerOverlay.classList.remove('hidden');
         }
 
         function closePlayer() {
-            playerContainer.innerHTML = ''; // Hentikan video dengan menghapus iframe
+            playerContainer.innerHTML = '';
             playerOverlay.classList.add('hidden');
         }
 
