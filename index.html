@@ -3,24 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovieLix - Mirip Cineby</title>
+    <title>MovieLix - Nonton Info Film Keren</title>
     <!-- Memuat Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Style tambahan untuk scrollbar custom (opsional, biar keren) */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #111827; /* bg-gray-900 */
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #374151; /* bg-gray-700 */
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563; /* bg-gray-600 */
-        }
+        /* Style tambahan untuk scrollbar dan text shadow */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+        .text-shadow { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8); }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans">
@@ -28,7 +20,7 @@
     <!-- Header / Navigasi -->
     <header class="bg-gray-800/50 backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
         <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="#" class="text-2xl font-bold text-red-600">MovieLix</a>
+            <a href="#" onclick="window.location.reload()" class="text-2xl font-bold text-red-600 cursor-pointer">MovieLix</a>
             <div class="relative">
                 <input type="text" id="search-input" placeholder="Cari film..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute top-1/2 right-4 transform -translate-y-1/2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -38,205 +30,214 @@
         </nav>
     </header>
 
-    <main class="container mx-auto px-4 pt-24">
+    <!-- KONTEN UTAMA: Akan disembunyikan saat detail film tampil -->
+    <main id="main-content" class="pt-20">
         <!-- Hero Section -->
-        <section id="hero-section" class="mb-12 relative rounded-lg overflow-hidden h-[60vh] flex items-end p-8">
-             <!-- Konten Hero akan diisi oleh JavaScript -->
+        <section id="hero-section" class="mb-12 relative rounded-lg overflow-hidden h-[60vh] flex items-end p-8 container mx-auto">
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
-            <div id="hero-content" class="relative z-10">
-                <!-- Konten detail hero akan diisi oleh JavaScript -->
+            <div id="hero-content" class="relative z-10 text-shadow">
+                <!-- Konten Hero akan diisi oleh JavaScript -->
             </div>
         </section>
 
-        <!-- Bagian Film Trending -->
-        <section id="trending-section" class="mb-12">
-            <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Trending Movies</h2>
-            <div id="trending-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <!-- Poster film akan diisi oleh JavaScript -->
-            </div>
-        </section>
+        <div class="container mx-auto px-4">
+            <!-- Hasil Pencarian (awalnya tersembunyi) -->
+            <section id="search-results-section" class="mb-12 hidden">
+                <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Search Results</h2>
+                <div id="search-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+            </section>
 
-        <!-- Bagian Now Playing -->
-        <section id="now-playing-section" class="mb-12">
-            <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Now Playing</h2>
-            <div id="now-playing-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <!-- Poster film akan diisi oleh JavaScript -->
-            </div>
-        </section>
+            <!-- Bagian Film Trending -->
+            <section id="trending-section" class="mb-12">
+                <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Trending This Week</h2>
+                <div id="trending-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+            </section>
 
-        <!-- Hasil Pencarian -->
-        <section id="search-results-section" class="mb-12 hidden">
-            <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Search Results</h2>
-            <div id="search-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                <!-- Hasil pencarian akan diisi oleh JavaScript -->
-            </div>
-        </section>
-
+            <!-- Bagian Now Playing -->
+            <section id="now-playing-section" class="mb-12">
+                <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">Now Playing in Theaters</h2>
+                <div id="now-playing-movies" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+            </section>
+        </div>
     </main>
 
-    <footer class="text-center py-8 text-gray-500">
+    <!-- TAMPILAN DETAIL FILM (awalnya tersembunyi) -->
+    <div id="detail-view" class="hidden">
+        <!-- Konten detail akan diisi oleh JavaScript -->
+    </div>
+
+    <footer id="main-footer" class="text-center py-8 text-gray-500">
         <p>Dibuat dengan ❤️ menggunakan TMDb API</p>
         <p>MovieLix © 2023</p>
     </footer>
 
     <script>
-    // ===============================================
-    // KONFIGURASI - JANGAN LUPA GANTI API KEY DI SINI!
-    // ===============================================
-    const apiKey = '8c79e8986ea53efac75026e541207aa3'; // <-- GANTI INI
-    const apiUrlBase = 'https://api.themoviedb.org/3';
-    const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
-    const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
+        // ===============================================
+        // KONFIGURASI - GANTI API KEY KAMU DI SINI!
+        // ===============================================
+        const apiKey = '8c79e8986ea53efac75026e541207aa3'; // <-- WAJIB GANTI INI
+        const apiUrlBase = 'https://api.themoviedb.org/3';
+        const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
+        const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
-    // ===============================================
-    // ELEMEN DOM
-    // ===============================================
-    const heroSection = document.getElementById('hero-section');
-    const heroContent = document.getElementById('hero-content');
-    const trendingMoviesContainer = document.getElementById('trending-movies');
-    const nowPlayingMoviesContainer = document.getElementById('now-playing-movies');
-    const searchInput = document.getElementById('search-input');
-    const searchResultsSection = document.getElementById('search-results-section');
-    const searchResultsContainer = document.getElementById('search-results');
-    // Ambil semua section utama KECUALI section hasil pencarian
-    const mainSections = document.querySelectorAll('main > section:not(#search-results-section)');
+        // ===============================================
+        // ELEMEN DOM UTAMA
+        // ===============================================
+        const mainContent = document.getElementById('main-content');
+        const mainFooter = document.getElementById('main-footer');
+        const detailView = document.getElementById('detail-view');
+        const searchInput = document.getElementById('search-input');
+        const searchResultsSection = document.getElementById('search-results-section');
+        const mainSections = document.querySelectorAll('#main-content > div > section:not(#search-results-section)');
 
-
-    // ===============================================
-    // FUNGSI UNTUK MENGAMBIL DATA DARI API
-    // ===============================================
-    // Fungsi ini sekarang lebih fleksibel untuk menangani endpoint yang berbeda
-    async function fetchData(endpoint) {
-        // Cek apakah endpoint sudah mengandung tanda tanya (?)
-        const separator = endpoint.includes('?') ? '&' : '?';
-        const url = `${apiUrlBase}/${endpoint}${separator}api_key=${apiKey}&language=en-US`;
-        
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        // ===============================================
+        // FUNGSI UTAMA FETCH DATA
+        // ===============================================
+        async function fetchData(endpoint) {
+            const separator = endpoint.includes('?') ? '&' : '?';
+            const url = `${apiUrlBase}/${endpoint}${separator}api_key=${apiKey}&language=en-US`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Fetch error:', error);
+                return null;
             }
-            const data = await response.json();
-            return data.results;
-        } catch (error) {
-            console.error('Fetch error:', error);
-            // Tampilkan pesan error di konsol untuk debugging
-            return [];
         }
-    }
 
-    // ===============================================
-    // FUNGSI UNTUK MENAMPILKAN FILM (Tidak ada perubahan)
-    // ===============================================
-    // GANTI KODE INI DI DALAM FUNGSI displayMovies DI index.html
+        // ===============================================
+        // FUNGSI TAMPILAN
+        // ===============================================
+        function displayMovies(movies, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            if (!movies || movies.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-center text-gray-400">Tidak ada film yang cocok.</p>`;
+                return;
+            }
+            movies.forEach(movie => {
+                if (movie.poster_path) {
+                    const movieCard = document.createElement('div');
+                    movieCard.className = 'transform hover:scale-105 transition-transform duration-300 cursor-pointer';
+                    movieCard.innerHTML = `<img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg">`;
+                    movieCard.addEventListener('click', () => showMovieDetail(movie.id));
+                    container.appendChild(movieCard);
+                }
+            });
+        }
 
-function displayMovies(movies, container) {
-    container.innerHTML = ''; // Kosongkan container dulu
-    if (movies.length === 0) {
-        container.innerHTML = `<p class="col-span-full text-center text-gray-400">Tidak ada film untuk ditampilkan.</p>`;
-        return;
-    }
+        function displayMovieDetailView(movie) {
+            const officialTrailer = movie.videos.results.find(v => v.site === 'YouTube' && v.type === 'Trailer') || movie.videos.results.find(v => v.site === 'YouTube');
+            const trailerKey = officialTrailer ? officialTrailer.key : null;
+            const genres = movie.genres.map(g => g.name).join(' • ');
+            const cast = movie.credits.cast.slice(0, 5).map(c => c.name).join(', ');
 
-    movies.forEach(movie => {
-        if (movie.poster_path) {
-            // === BAGIAN YANG DIUBAH ADA DI SINI ===
-            // Kita bungkus semua dengan tag <a>
-            const movieCard = `
-                <a href="detail.html?id=${movie.id}" class="block transform hover:scale-105 transition-transform duration-300 group relative">
-                    <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg">
-                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-2 text-center">
-                        <h3 class="text-white text-sm font-bold truncate opacity-0 group-hover:opacity-100 transition-opacity duration-300">${movie.title}</h3>
+            detailView.innerHTML = `
+                <div class="h-screen w-full relative bg-black">
+                    ${trailerKey ? `
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&loop=1&playlist=${trailerKey}&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    ` : `
+                        <img src="${imageBaseUrl}${movie.backdrop_path}" class="w-full h-full object-cover opacity-50" alt="Backdrop">
+                        <div class="absolute inset-0 flex items-center justify-center"><p class="text-2xl">Trailer tidak tersedia.</p></div>
+                    `}
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-black/20"></div>
+                    <button onclick="hideMovieDetail()" class="absolute top-5 left-5 z-20 bg-black/50 text-white py-2 px-4 rounded-full hover:bg-red-600 transition-colors">← Kembali</button>
+                </div>
+                <div class="container mx-auto px-4 md:px-8 pb-16 -mt-24 md:-mt-32 relative z-10">
+                    <h1 class="text-4xl lg:text-5xl font-bold text-shadow">${movie.title}</h1>
+                    <p class="text-lg text-gray-300 mt-2">${movie.release_date.split('-')[0]} • ${genres}</p>
+                    <div class="flex items-center flex-wrap gap-4 my-4">
+                        <span class="bg-yellow-500 text-black font-bold py-1 px-3 rounded">IMDb ${movie.vote_average.toFixed(1)}</span>
+                        <span class="text-gray-300">${movie.runtime} menit</span>
                     </div>
-                </a>
+                    <p class="max-w-3xl text-gray-300 leading-relaxed mt-4">${movie.overview}</p>
+                    <h2 class="text-xl font-semibold mt-6 mb-2">Pemeran:</h2>
+                    <p class="max-w-3xl text-gray-400">${cast}</p>
+                </div>
             `;
-            // === AKHIR BAGIAN YANG DIUBAH ===
-            container.innerHTML += movieCard;
-        }
-    });
-}
-
-    // ===============================================
-    // FUNGSI UNTUK MENGATUR HERO SECTION (Tidak ada perubahan)
-    // ===============================================
-    function displayHero(movie) {
-        if (!movie || !movie.backdrop_path) return;
-        heroSection.style.backgroundImage = `url(${imageBaseUrl}${movie.backdrop_path})`;
-
-        heroContent.innerHTML = `
-            <h1 class="text-4xl md:text-6xl font-bold mb-4 text-shadow-lg">${movie.title}</h1>
-            <p class="max-w-xl mb-4 text-gray-200 hidden md:block text-shadow-md">${movie.overview.substring(0, 150)}...</p>
-            <div class="flex items-center space-x-4 mb-6">
-                <span class="bg-yellow-500 text-black font-bold py-1 px-3 rounded">IMDb ${movie.vote_average.toFixed(1)}</span>
-                <span class="text-gray-200">${movie.release_date ? movie.release_date.split('-')[0] : ''}</span>
-            </div>
-            <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full transition-colors">
-                Watch Trailer
-            </button>
-        `;
-    }
-
-    // ===============================================
-    // FUNGSI PENCARIAN (INI YANG DIPERBAIKI)
-    // ===============================================
-    async function searchMovies(query) {
-        if (query.trim() === '') {
-            // Jika input kosong, tampilkan section utama dan sembunyikan hasil pencarian
-            searchResultsSection.classList.add('hidden');
-            mainSections.forEach(section => section.classList.remove('hidden'));
-            return;
         }
 
-        // Sembunyikan section utama dan tampilkan hasil pencarian
-        mainSections.forEach(section => section.classList.add('hidden'));
-        searchResultsSection.classList.remove('hidden');
-        searchResultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">Mencari film...</p>`;
+        // ===============================================
+        // LOGIKA PERGANTIAN TAMPILAN
+        // ===============================================
+        async function showMovieDetail(movieId) {
+            detailView.innerHTML = `<div class="h-screen w-full flex justify-center items-center bg-gray-900"><p class="text-2xl animate-pulse">Loading detail film...</p></div>`;
+            mainContent.classList.add('hidden');
+            mainFooter.classList.add('hidden');
+            detailView.classList.remove('hidden');
+            window.scrollTo(0, 0);
 
-        // Endpoint untuk search sudah mengandung '?query='
-        const endpoint = `search/movie?query=${encodeURIComponent(query)}`;
-        const movies = await fetchData(endpoint); // Gunakan fungsi fetchData yang sudah diperbaiki
-
-        if (movies.length > 0) {
-            displayMovies(movies, searchResultsContainer);
-        } else {
-            searchResultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">Film "${query}" tidak ditemukan.</p>`;
-        }
-    }
-
-    // ===============================================
-    // INISIALISASI HALAMAN
-    // ===============================================
-    async function initializePage() {
-        // Tampilkan loading di awal
-        trendingMoviesContainer.innerHTML = `<p class="col-span-full text-center">Loading...</p>`;
-        nowPlayingMoviesContainer.innerHTML = `<p class="col-span-full text-center">Loading...</p>`;
-
-        // Ambil data film trending
-        const trendingMovies = await fetchData('trending/movie/week');
-        if (trendingMovies.length > 0) {
-            displayHero(trendingMovies[0]);
-            displayMovies(trendingMovies, trendingMoviesContainer);
+            const movie = await fetchData(`movie/${movieId}?append_to_response=videos,credits`);
+            if (movie) {
+                displayMovieDetailView(movie);
+            } else {
+                detailView.innerHTML = `<div class="h-screen w-full flex flex-col justify-center items-center bg-gray-900"><p class="text-2xl text-red-500">Gagal memuat detail film.</p><button onclick="hideMovieDetail()" class="mt-4 bg-red-600 text-white py-2 px-4 rounded">Kembali</button></div>`;
+            }
         }
 
-        // Ambil data film yang sedang tayang
-        const nowPlayingMovies = await fetchData('movie/now_playing');
-        displayMovies(nowPlayingMovies, nowPlayingMoviesContainer);
-    }
+        function hideMovieDetail() {
+            detailView.innerHTML = ''; 
+            detailView.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+            mainFooter.classList.remove('hidden');
+        }
 
-    // ===============================================
-    // EVENT LISTENER
-    // ===============================================
-    let searchTimeout;
-    searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        // Tambahkan delay agar tidak melakukan pencarian setiap kali mengetik
-        searchTimeout = setTimeout(() => {
-            searchMovies(e.target.value);
-        }, 300); // 300ms delay
-    });
+        // ===============================================
+        // FUNGSI PENCARIAN
+        // ===============================================
+        async function searchMovies(query) {
+            if (query.trim() === '') {
+                mainSections.forEach(s => s.classList.remove('hidden'));
+                searchResultsSection.classList.add('hidden');
+                return;
+            }
+            mainSections.forEach(s => s.classList.add('hidden'));
+            searchResultsSection.classList.remove('hidden');
+            document.getElementById('search-results').innerHTML = `<p class="col-span-full text-center">Mencari...</p>`;
+            
+            const data = await fetchData(`search/movie?query=${encodeURIComponent(query)}`);
+            displayMovies(data.results, 'search-results');
+        }
 
-    // Jalankan semua saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', initializePage);
-</script>
+        // ===============================================
+        // INISIALISASI HALAMAN AWAL
+        // ===============================================
+        async function initializeHomepage() {
+            const heroSection = document.getElementById('hero-section');
+            const heroContent = document.getElementById('hero-content');
+            
+            const trendingData = await fetchData('trending/movie/week');
+            if (trendingData && trendingData.results.length > 0) {
+                const heroMovie = trendingData.results[0];
+                heroSection.style.backgroundImage = `url(${imageBaseUrl}${heroMovie.backdrop_path})`;
+                heroContent.innerHTML = `
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4">${heroMovie.title}</h1>
+                    <p class="max-w-xl mb-4 text-gray-200 hidden md:block">${heroMovie.overview.substring(0, 150)}...</p>
+                    <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full" onclick="showMovieDetail(${heroMovie.id})">
+                        Tonton Trailer & Info
+                    </button>
+                `;
+                displayMovies(trendingData.results, 'trending-movies');
+            }
+
+            const nowPlayingData = await fetchData('movie/now_playing');
+            displayMovies(nowPlayingData.results, 'now-playing-movies');
+        }
+
+        // ===============================================
+        // EVENT LISTENERS
+        // ===============================================
+        let searchTimeout;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                searchMovies(e.target.value);
+            }, 300);
+        });
+
+        document.addEventListener('DOMContentLoaded', initializeHomepage);
+    </script>
 </body>
 </html>
