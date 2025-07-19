@@ -128,27 +128,33 @@
     // ===============================================
     // FUNGSI UNTUK MENAMPILKAN FILM (Tidak ada perubahan)
     // ===============================================
-    function displayMovies(movies, container) {
-        container.innerHTML = ''; // Kosongkan container dulu
-        if (movies.length === 0) {
-            container.innerHTML = `<p class="col-span-full text-center text-gray-400">Tidak ada film untuk ditampilkan.</p>`;
-            return;
-        }
+    // GANTI KODE INI DI DALAM FUNGSI displayMovies DI index.html
 
-        movies.forEach(movie => {
-            if (movie.poster_path) { // Hanya tampilkan film yang punya poster
-                const movieCard = `
-                    <div class="transform hover:scale-105 transition-transform duration-300 cursor-pointer group">
-                        <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg">
-                        <div class="absolute bottom-0 left-0 right-0 bg-black/70 p-2 rounded-b-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <h3 class="text-white text-sm font-bold truncate">${movie.title}</h3>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += movieCard;
-            }
-        });
+function displayMovies(movies, container) {
+    container.innerHTML = ''; // Kosongkan container dulu
+    if (movies.length === 0) {
+        container.innerHTML = `<p class="col-span-full text-center text-gray-400">Tidak ada film untuk ditampilkan.</p>`;
+        return;
     }
+
+    movies.forEach(movie => {
+        if (movie.poster_path) {
+            // === BAGIAN YANG DIUBAH ADA DI SINI ===
+            // Kita bungkus semua dengan tag <a>
+            const movieCard = `
+                <a href="detail.html?id=${movie.id}" class="block transform hover:scale-105 transition-transform duration-300 group relative">
+                    <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-2 text-center">
+                        <h3 class="text-white text-sm font-bold truncate opacity-0 group-hover:opacity-100 transition-opacity duration-300">${movie.title}</h3>
+                    </div>
+                </a>
+            `;
+            // === AKHIR BAGIAN YANG DIUBAH ===
+            container.innerHTML += movieCard;
+        }
+    });
+}
 
     // ===============================================
     // FUNGSI UNTUK MENGATUR HERO SECTION (Tidak ada perubahan)
