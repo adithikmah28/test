@@ -5,14 +5,12 @@ const apiKey = '8c79e8986ea53efac75026e541207aa3'; // <-- WAJIB GANTI INI
 const apiUrlBase = 'https://api.themoviedb.org/3';
 const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
-// Definisikan server-server kita dalam sebuah array.
-// Ini membuatnya sangat mudah untuk menambah/mengurangi server di masa depan.
-const servers = [
-    { name: "Vidlink", urlTemplate: `https://vidlink.pro/movie/` },
-    { name: "Vidsrc", urlTemplate: `https://vidsrc.to/embed/movie/` }
-    // Tambahkan server lain di sini jika perlu, misal:
-    // { name: "Server 3", urlTemplate: `https://another-source.com/embed/` }
+// Definisikan sumber-sumber kita
+const streamingServers = [
+    { name: "Vidsrc.to", urlTemplate: `https://vidsrc.to/embed/movie/` },
+    { name: "Vidlink", urlTemplate: `https://vidlink.pro/embed/` }
 ];
+const downloadUrlTemplate = `https://dl.vidsrc.vip/movie/`;
 
 
 // --- ELEMEN DOM ---
@@ -22,10 +20,10 @@ const playerModal = document.getElementById('player-modal');
 const playerContainer = document.getElementById('player-container');
 const closeModalBtn = document.getElementById('close-modal-btn');
 const serverButtonsContainer = document.getElementById('server-buttons');
-let currentMovieId = null; // Untuk menyimpan ID film yang sedang diputar
+const downloadButtonContainer = document.getElementById('download-button-container'); // Elemen baru
+let currentMovieId = null; 
 
-// --- FUNGSI API ---
-// (Tidak ada perubahan, tetap sama)
+// --- FUNGSI API --- (Tidak ada perubahan)
 async function fetchData(endpoint) {
     const separator = endpoint.includes('?') ? '&' : '?';
     const url = `${apiUrlBase}/${endpoint}${separator}api_key=${apiKey}&language=en-US`;
@@ -36,8 +34,7 @@ async function fetchData(endpoint) {
     } catch (error) { console.error("Fetch Error:", error); return null; }
 }
 
-// --- FUNGSI RENDER TAMPILAN ---
-// (Tidak ada perubahan, tetap sama)
+// --- FUNGSI RENDER TAMPILAN --- (Tidak ada perubahan)
 function createMovieCard(movie) {
     if (!movie.poster_path) return null;
     const card = document.createElement('div');
@@ -61,15 +58,16 @@ function createSection(title, movies) {
 }
 
 // ===========================================
-// --- FUNGSI MODAL PLAYER (DIROMBAK TOTAL) ---
+// --- FUNGSI MODAL PLAYER (DIPERBARUI) ---
 // ===========================================
 
 function openPlayerModal(movieId) {
     currentMovieId = movieId; // Simpan ID film saat ini
     serverButtonsContainer.innerHTML = ''; // Kosongkan tombol server lama
+    downloadButtonContainer.innerHTML = ''; // Kosongkan tombol download lama
 
-    // Buat tombol untuk setiap server yang kita definisikan di atas
-    servers.forEach((server, index) => {
+    // 1. Buat tombol untuk setiap server streaming
+    streamingServers.forEach((server, index) => {
         const button = document.createElement('button');
         button.innerText = server.name;
         button.className = 'server-btn bg-gray-700 hover:bg-red-600 px-4 py-1 rounded text-sm transition-colors';
@@ -77,24 +75,29 @@ function openPlayerModal(movieId) {
         serverButtonsContainer.appendChild(button);
     });
 
-    // Secara default, muat video dari server pertama
+    // 2. Buat tombol download
+    const downloadLink = document.createElement('a');
+    downloadLink.href = `${downloadUrlTemplate}${movieId}`;
+    downloadLink.target = '_blank'; // Buka di tab baru
+    downloadLink.rel = 'noopener noreferrer';
+    downloadLink.className = 'bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-1 rounded text-sm transition-transform hover:scale-105 inline-block';
+    downloadLink.innerText = 'Download Film';
+    downloadButtonContainer.appendChild(downloadLink);
+
+
+    // 3. Secara default, muat video dari server pertama
     changeServer(0); 
 
     playerModal.classList.remove('hidden');
 }
 
 function changeServer(serverIndex) {
-    // 1. Dapatkan info server yang dipilih
-    const selectedServer = servers[serverIndex];
+    const selectedServer = streamingServers[serverIndex];
     if (!selectedServer || !currentMovieId) return;
 
-    // 2. Buat URL streaming yang lengkap
     const streamingUrl = `${selectedServer.urlTemplate}${currentMovieId}`;
-    
-    // 3. Tanamkan iframe baru
     playerContainer.innerHTML = `<iframe class="w-full h-full" src="${streamingUrl}" frameborder="0" allowfullscreen></iframe>`;
     
-    // 4. Update tampilan tombol yang aktif
     const buttons = serverButtonsContainer.querySelectorAll('.server-btn');
     buttons.forEach((btn, index) => {
         btn.classList.toggle('active', index === serverIndex);
@@ -104,11 +107,10 @@ function changeServer(serverIndex) {
 function closePlayerModal() {
     playerModal.classList.add('hidden');
     playerContainer.innerHTML = ''; 
-    currentMovieId = null; // Reset ID film
+    currentMovieId = null; 
 }
 
-// --- FUNGSI LOGIKA HALAMAN & EVENT LISTENERS ---
-// (Tidak ada perubahan, tetap sama)
+// --- FUNGSI LOGIKA HALAMAN & EVENT LISTENERS --- (Tidak ada perubahan)
 async function initializeHomepage() {
     movieSectionsContainer.innerHTML = '<p class="text-center text-xl animate-pulse">Memuat film populer...</p>';
     const [trending, nowPlaying, topRated] = await Promise.all([
