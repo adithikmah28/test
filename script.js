@@ -172,14 +172,13 @@ function updatePlayer() {
         streamingUrl = `${server.tvUrl}${currentContent.id}/${currentContent.season}/1`;
     }
     
-    playerContainer.innerHTML = `<iframe class="w-full h-full" src="${streamingUrl}" frameborder="0" allowfullscreen></iframe>`;
+     playerContainer.innerHTML = `<iframe class="w-full h-full" src="${streamingUrl}" frameborder="0" allowfullscreen referrerpolicy="no-referrer"></iframe>`;
     
     const buttons = serverButtonsContainer.querySelectorAll('.server-btn');
     buttons.forEach((btn, index) => {
         btn.classList.toggle('active', index === currentServerIndex);
     });
 }
-
 function closePlayerModal() {
     playerModal.classList.add('hidden');
     playerContainer.innerHTML = ''; 
