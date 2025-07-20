@@ -8,17 +8,20 @@ const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
 // Daftar server streaming kita. Yang paling atas akan jadi default.
 // js/script.js (Bagian Konfigurasi)
 
-// GANTI URUTANNYA SEPERTI INI:
 const streamingServers = [
-    // Jadikan Vidsrc.to sebagai server utama (pilihan pertama)
-    { name: "Vidsrc.to", movieUrl: `https://vidsrc.to/embed/movie/`, tvUrl: `https://vidsrc.to/embed/tv/` },
-    
-    // Taruh CinemaOS sebagai pilihan kedua atau ketiga
+    // Kita coba lagi CinemaOS (gdriveplayer) dengan trik baru
     { name: "CinemaOS", movieUrl: `https://gdriveplayer.to/embed/movie/`, tvUrl: `https://gdriveplayer.to/embed/tv/` },
     
-    // Vidlink sebagai backup terakhir
+    // Server lain sebagai backup
+    { name: "Vidsrc.to", movieUrl: `https://vidsrc.to/embed/movie/`, tvUrl: `https://vidsrc.to/embed/tv/` },
     { name: "Vidlink", movieUrl: `https://vidlink.pro/embed/`, tvUrl: `https://vidlink.pro/tv/` }
 ];
+
+const downloadUrl = {
+    movie: `https://dl.vidsrc.vip/movie/`,
+    tv: `https://dl.vidsrc.vip/tv/`
+};
+
 
 // ... sisa kode tidak perlu diubah ...
 
