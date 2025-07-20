@@ -3,138 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Film</title>
+    <title>MovieLix - Nonton Info Film</title>
+    
+    <!-- Memuat Tailwind CSS untuk styling cepat -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .text-shadow { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8); }
-        .hero-gradient { background: linear-gradient(to top, rgba(15, 23, 42, 1) 5%, rgba(15, 23, 42, 0.7) 40%, rgba(15, 23, 42, 0) 70%); }
-    </style>
+    
+    <!-- Memanggil CSS custom dari file terpisah -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-slate-900 text-white font-sans">
+<body class="bg-gray-900 text-white font-sans">
 
-    <!-- FULL SCREEN PLAYER (awalnya tersembunyi) -->
-    <div id="player-overlay" class="hidden fixed inset-0 bg-black/95 z-[100] flex justify-center items-center">
-        <div id="player-container" class="w-full h-full max-w-screen-lg max-h-[80vh] aspect-video relative">
-            <!-- Iframe akan disuntikkan di sini -->
+    <!-- Header -->
+    <header class="bg-gray-800/50 backdrop-blur-sm sticky top-0 z-40">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-red-600">MovieLix</a>
+            <div class="relative">
+                <input type="text" id="search-input" placeholder="Cari film..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-600">
+            </div>
+        </nav>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="container mx-auto px-4 py-8">
+        <div id="movie-sections">
+            <!-- Konten film akan di-generate oleh script.js di sini -->
         </div>
-        <button id="close-player" class="absolute top-5 right-5 text-white text-4xl hover:text-red-500">×</button>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-8 text-gray-500 border-t border-gray-800">
+        <p>Dibuat dengan TMDb API.</p>
+    </footer>
+
+    <!-- MODAL PLAYER (awalnya tersembunyi) -->
+    <div id="player-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex justify-center items-center p-4">
+        <div id="modal-content" class="bg-black w-full max-w-4xl aspect-video relative rounded-lg shadow-2xl">
+            <!-- Tombol Close Modal -->
+            <button id="close-modal-btn" class="absolute -top-3 -right-3 text-white bg-red-600 rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold z-10">×</button>
+            <!-- Kontainer untuk Iframe Player -->
+            <div id="player-container" class="w-full h-full">
+                <!-- Iframe akan disuntikkan oleh script.js di sini -->
+            </div>
+        </div>
     </div>
 
-    <div id="detail-content">
-        <!-- Konten detail akan diisi oleh JS -->
-        <p class="text-center text-2xl h-screen flex items-center justify-center">Loading Detail Film...</p>
-    </div>
-
-    <script>
-        const apiKey = '8c79e8986ea53efac75026e541207aa3';
-        const apiUrlBase = 'https://api.themoviedb.org/3';
-        const imageBaseUrl = 'https://image.tmdb.org/t/p/original';
-        const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
-
-        const detailContent = document.getElementById('detail-content');
-        const playerOverlay = document.getElementById('player-overlay');
-        const playerContainer = document.getElementById('player-container');
-        const closePlayerBtn = document.getElementById('close-player');
-
-        async function fetchMovieData(movieId) {
-            const endpoint = `movie/${movieId}?append_to_response=similar`; // Kita tidak perlu 'videos' lagi
-            const url = `${apiUrlBase}/${endpoint}&api_key=${apiKey}&language=en-US`;
-            try {
-                const response = await fetch(url);
-                return await response.json();
-            } catch (error) {
-                console.error("Fetch Error:", error);
-                return null;
-            }
-        }
-        
-        function renderPage(movie) {
-            document.title = movie.title;
-
-            const similarMoviesHTML = movie.similar.results.slice(0, 6).map(m => {
-                 if (!m.poster_path) return '';
-                 return `<a href="detail.html?id=${m.id}" class="block group"><img src="${imageCardBaseUrl}${m.poster_path}" class="rounded-lg shadow-lg transform group-hover:scale-105 transition-transform duration-300"></a>`;
-            }).join('');
-            
-            detailContent.innerHTML = `
-                <!-- Hero Section -->
-                <div class="relative h-[70vh] w-full">
-                    <div class="absolute inset-0 bg-black/50 z-10"></div>
-                    <div class="absolute inset-0 hero-gradient z-10"></div>
-                    <img src="${imageBaseUrl}${movie.backdrop_path}" class="h-full w-full object-cover">
-                    <div class="absolute bottom-0 left-0 p-8 z-20 container mx-auto">
-                        <h1 class="text-4xl md:text-6xl font-bold text-shadow">${movie.title}</h1>
-                        <p class="text-lg text-gray-300">${movie.genres.map(g => g.name).join(', ')}</p>
-                    </div>
-                </div>
-
-                <!-- Info Section -->
-                <div class="container mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="md:col-span-2">
-                        <h2 class="text-3xl font-bold mb-4">Sinopsis</h2>
-                        <p class="text-gray-300 leading-relaxed">${movie.overview}</p>
-                        <button id="watch-now-btn" data-movieid="${movie.id}" class="mt-8 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-10 rounded-full text-lg transition-transform hover:scale-105">Tonton Sekarang</button>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-semibold mb-2">Rating</h3>
-                        <p class="text-yellow-400 text-xl font-bold">${movie.vote_average.toFixed(1)} / 10</p>
-                        <h3 class="text-2xl font-semibold mt-6 mb-2">Tanggal Rilis</h3>
-                        <p class="text-gray-400">${new Date(movie.release_date).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    </div>
-                </div>
-
-                <!-- Similar Movies -->
-                <div class="container mx-auto px-8 py-12">
-                    <h2 class="text-3xl font-bold mb-6">Film Serupa</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">${similarMoviesHTML}</div>
-                </div>
-            `;
-            
-            const watchNowBtn = document.getElementById('watch-now-btn');
-            watchNowBtn.addEventListener('click', () => {
-                openPlayer(watchNowBtn.dataset.movieid);
-            });
-        }
-
-        // ===========================================
-        // INI DIA FUNGSI YANG KITA MODIFIKASI
-        // ===========================================
-        function openPlayer(movieId) {
-            // Kita susun URL embed berdasarkan format yang kita tahu
-            const streamingUrl = `https://vidlink.pro/embed/${movieId}`; 
-
-            console.log("Mencoba memuat player dari:", streamingUrl); // Pesan untuk debugging
-
-            // Tanamkan iframe dengan sumber baru
-            playerContainer.innerHTML = `<iframe class="w-full h-full" src="${streamingUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-            
-            playerOverlay.classList.remove('hidden');
-        }
-
-        function closePlayer() {
-            playerContainer.innerHTML = '';
-            playerOverlay.classList.add('hidden');
-        }
-
-        closePlayerBtn.addEventListener('click', closePlayer);
-        
-        async function main() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const movieId = urlParams.get('id');
-
-            if (!movieId) {
-                detailContent.innerHTML = '<p>ID Film tidak ditemukan.</p>';
-                return;
-            }
-            const movie = await fetchMovieData(movieId);
-            if (movie) {
-                renderPage(movie);
-            } else {
-                detailContent.innerHTML = '<p>Gagal memuat detail film.</p>';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', main);
-    </script>
+    <!-- Memanggil JS dari file terpisah, 'defer' penting untuk performa -->
+    <script src="js/script.js" defer></script>
 </body>
 </html>
