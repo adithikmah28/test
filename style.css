@@ -1,0 +1,31 @@
+/* css/style.css */
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #111827; /* bg-gray-900 */
+}
+::-webkit-scrollbar-thumb {
+    background: #374151; /* bg-gray-700 */
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ef4444; /* red-500 */
+}
+
+
+/* Style untuk animasi Modal Player */
+#player-modal {
+    transition: opacity 0.3s ease;
+}
+
+#modal-content {
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+#player-modal:not(.hidden) #modal-content {
+    transform: scale(1);
+}
