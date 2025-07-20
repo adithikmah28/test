@@ -8,7 +8,7 @@ const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
 // Definisikan sumber-sumber kita
 const streamingServers = [
     { name: "Vidsrc.to", urlTemplate: `https://vidsrc.to/embed/movie/` },
-    { name: "Vidlink", urlTemplate: `https://vidlink.pro/embed/` }
+    { name: "Vidlink", urlTemplate: `https://vidlink.pro/movie/` }
 ];
 const downloadUrlTemplate = `https://dl.vidsrc.vip/movie/`;
 
