@@ -6,11 +6,21 @@ const apiUrlBase = 'https://api.themoviedb.org/3';
 const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
 
 // Daftar server streaming kita. Yang paling atas akan jadi default.
+// js/script.js (Bagian Konfigurasi)
+
+// GANTI URUTANNYA SEPERTI INI:
 const streamingServers = [
-    { name: "CinemaOS", movieUrl: `https://gdriveplayer.to/embed/movie/`, tvUrl: `https://gdriveplayer.to/embed/tv/` },
+    // Jadikan Vidsrc.to sebagai server utama (pilihan pertama)
     { name: "Vidsrc.to", movieUrl: `https://vidsrc.to/embed/movie/`, tvUrl: `https://vidsrc.to/embed/tv/` },
+    
+    // Taruh CinemaOS sebagai pilihan kedua atau ketiga
+    { name: "CinemaOS", movieUrl: `https://gdriveplayer.to/embed/movie/`, tvUrl: `https://gdriveplayer.to/embed/tv/` },
+    
+    // Vidlink sebagai backup terakhir
     { name: "Vidlink", movieUrl: `https://vidlink.pro/embed/`, tvUrl: `https://vidlink.pro/tv/` }
 ];
+
+// ... sisa kode tidak perlu diubah ...
 
 // Konfigurasi untuk link download
 const downloadUrl = {
