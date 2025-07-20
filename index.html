@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovieLix - Temukan Film Favoritmu</title>
+    <title>MovieLix - Nonton Info Film</title>
+    
+    <!-- Memuat Tailwind CSS untuk styling cepat -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
-    </style>
+    
+    <!-- Memanggil CSS custom dari file terpisah -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="bg-gray-900 text-white font-sans">
 
-    <header class="bg-gray-800/50 backdrop-blur-sm sticky top-0 z-50">
+    <!-- Header -->
+    <header class="bg-gray-800/50 backdrop-blur-sm sticky top-0 z-40">
         <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-red-600">MovieLix</a>
             <div class="relative">
@@ -22,98 +23,31 @@
         </nav>
     </header>
 
+    <!-- Konten Utama -->
     <main class="container mx-auto px-4 py-8">
         <div id="movie-sections">
-            <!-- Sections akan diisi oleh JS -->
+            <!-- Konten film akan di-generate oleh script.js di sini -->
         </div>
     </main>
 
+    <!-- Footer -->
     <footer class="text-center py-8 text-gray-500 border-t border-gray-800">
         <p>Dibuat dengan TMDb API.</p>
     </footer>
 
-    <script>
-        const apiKey = '8c79e8986ea53efac75026e541207aa3';
-        const apiUrlBase = 'https://api.themoviedb.org/3';
-        const imageCardBaseUrl = 'https://image.tmdb.org/t/p/w500';
+    <!-- MODAL PLAYER (awalnya tersembunyi) -->
+    <div id="player-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex justify-center items-center p-4">
+        <div id="modal-content" class="bg-black w-full max-w-4xl aspect-video relative rounded-lg shadow-2xl">
+            <!-- Tombol Close Modal -->
+            <button id="close-modal-btn" class="absolute -top-3 -right-3 text-white bg-red-600 rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold z-10">×</button>
+            <!-- Kontainer untuk Iframe Player -->
+            <div id="player-container" class="w-full h-full">
+                <!-- Iframe akan disuntikkan oleh script.js di sini -->
+            </div>
+        </div>
+    </div>
 
-        const movieSectionsContainer = document.getElementById('movie-sections');
-        const searchInput = document.getElementById('search-input');
-
-        // ===========================================
-        // INI FUNGSI YANG SUDAH DIPERBAIKI
-        // ===========================================
-        async function fetchData(endpoint) {
-            // Cek apakah endpoint sudah punya parameter ('?')
-            const separator = endpoint.includes('?') ? '&' : '?';
-            const url = `${apiUrlBase}/${endpoint}${separator}api_key=${apiKey}&language=en-US`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("Network response was not ok");
-                return await response.json();
-            } catch (error) {
-                console.error("Fetch Error:", error);
-                return null;
-            }
-        }
-        
-        function createMovieCard(movie) {
-             if (!movie.poster_path) return '';
-             return `
-                <a href="detail.html?id=${movie.id}" class="block group">
-                    <img src="${imageCardBaseUrl}${movie.poster_path}" alt="${movie.title}" class="rounded-lg shadow-lg transform group-hover:scale-105 transition-transform duration-300">
-                </a>
-             `;
-        }
-
-        function createSection(title, movies) {
-            const moviesHTML = movies.map(createMovieCard).join('');
-            return `
-                <section class="mb-12">
-                    <h2 class="text-2xl font-semibold mb-4 border-l-4 border-red-600 pl-3">${title}</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">${moviesHTML}</div>
-                </section>
-            `;
-        }
-
-        async function initializeHomepage() {
-            movieSectionsContainer.innerHTML = '<p class="text-center text-xl animate-pulse">Memuat film populer...</p>';
-            const [trending, nowPlaying, topRated] = await Promise.all([
-                fetchData('trending/movie/week'),
-                fetchData('movie/now_playing'),
-                fetchData('movie/top_rated')
-            ]);
-            
-            let content = '';
-            if (trending) content += createSection('Trending Minggu Ini', trending.results);
-            if (nowPlaying) content += createSection('Sedang Tayang', nowPlaying.results);
-            if (topRated) content += createSection('Rating Tertinggi', topRated.results);
-            movieSectionsContainer.innerHTML = content;
-        }
-
-        async function searchMovies(query) {
-             const trimmedQuery = query.trim();
-             if (trimmedQuery === '') {
-                initializeHomepage();
-                return;
-            }
-            movieSectionsContainer.innerHTML = `<p class="text-center text-xl animate-pulse">Mencari "${trimmedQuery}"...</p>`;
-            // Endpoint untuk search sudah benar
-            const searchData = await fetchData(`search/movie?query=${encodeURIComponent(trimmedQuery)}`);
-            if (searchData && searchData.results.length > 0) {
-                 movieSectionsContainer.innerHTML = createSection(`Hasil untuk "${trimmedQuery}"`, searchData.results);
-            } else {
-                 movieSectionsContainer.innerHTML = `<p class="text-center text-xl">Tidak ada hasil untuk "${trimmedQuery}".</p>`;
-            }
-        }
-        
-        let searchTimeout;
-        searchInput.addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => searchMovies(e.target.value), 500);
-        });
-        
-        document.addEventListener('DOMContentLoaded', initializeHomepage);
-    </script>
+    <!-- Memanggil JS dari file terpisah, 'defer' penting untuk performa -->
+    <script src="script.js" defer></script>
 </body>
 </html>
