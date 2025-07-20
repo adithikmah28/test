@@ -67,7 +67,7 @@ function openPlayerModal(id) {
     //           DI SINILAH KAMU MENGATUR SUMBER VIDEO
     //  Kamu hanya perlu mengubah SATU BARIS ini jika sumber video berubah.
     // =============================================================
-    const streamingUrl = `https://vidlink.pro/embed/${id}`;
+    const streamingUrl = `https://vidlink.pro/movie/${id}`;
     
     // Kode di bawah ini tidak perlu kamu sentuh.
     playerContainer.innerHTML = `<iframe class="w-full h-full" src="${streamingUrl}" frameborder="0" allowfullscreen></iframe>`;
