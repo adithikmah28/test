@@ -10,44 +10,46 @@
 </head>
 <body class="bg-gray-900 text-white font-sans">
 
-    <!-- Header -->
+    <!-- Header, Main, Footer (Tidak ada perubahan) -->
     <header class="bg-gray-800/50 backdrop-blur-sm sticky top-0 z-40">
         <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
             <a href="index.html" class="text-2xl font-bold text-red-600">MovieLix</a>
-            <div class="relative">
-                <input type="text" id="search-input" placeholder="Cari film..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-600">
-            </div>
+            <div class="relative"><input type="text" id="search-input" placeholder="Cari film..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-600"></div>
         </nav>
     </header>
-
-    <!-- Konten Utama -->
-    <main class="container mx-auto px-4 py-8">
-        <div id="movie-sections"></div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="text-center py-8 text-gray-500 border-t border-gray-800">
-        <p>Dibuat dengan TMDb API.</p>
-    </footer>
+    <main class="container mx-auto px-4 py-8"><div id="movie-sections"></div></main>
+    <footer class="text-center py-8 text-gray-500 border-t border-gray-800"><p>Dibuat dengan TMDb API.</p></footer>
 
     <!-- MODAL PLAYER (Strukturnya diubah) -->
     <div id="player-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex justify-center items-center p-4">
         <div id="modal-content" class="bg-black w-full max-w-4xl rounded-lg shadow-2xl">
             <!-- 1. Kontainer Iframe -->
             <div class="aspect-video">
-                <div id="player-container" class="w-full h-full">
-                    <!-- Iframe akan disuntikkan oleh script.js di sini -->
+                <div id="player-container" class="w-full h-full"></div>
+            </div>
+            
+            <!-- 2. Kontainer Tombol-Tombol Aksi -->
+            <div class="p-2 bg-gray-800/50 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <!-- Tombol Ganti Server -->
+                <div id="server-buttons" class="flex flex-wrap justify-center gap-2">
+                    <!-- Tombol server akan di-generate oleh script.js -->
+                </div>
+                <!-- Tombol Download -->
+                <div id="download-button-container">
+                    <!-- Tombol download akan di-generate oleh script.js -->
                 </div>
             </div>
-            <!-- 2. Kontainer Tombol Server -->
-            <div id="server-buttons" class="p-2 bg-gray-800/50 flex flex-wrap justify-center gap-2">
-                <!-- Tombol server akan di-generate oleh script.js di sini -->
-            </div>
+
             <!-- Tombol Close Modal -->
             <button id="close-modal-btn" class="absolute -top-3 -right-3 text-white bg-red-600 rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold z-10">×</button>
         </div>
     </div>
-
+    
+    <!-- Script Monetisasi (jika ada) -->
+    <script type="text/javascript">
+        // ... (script Adsterra kamu) ...
+    </script>
+    
     <script src="script.js" defer></script>
 </body>
 </html>
