@@ -1,53 +1,455 @@
+
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovieLix - Nonton Film & TV Series</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="description" content="Upload your videos easily with our free, simple video hosting platform. No registration, no ads, and unlimited uploads. Fast and secure video sharing.">
+    <meta name="keywords" content="free video hosting, simple video upload, video sharing, no ads video platform, unlimited video hosting, fast video upload">
+    <!-- Open Graph -->
+    <meta property="og:title" content="Free Simple Video Hosting & Upload">
+    <meta property="og:description" content="Upload videos for free without limits. Fast, ad-free, and simple platform to share your videos instantly.">
+    <!-- Twitter Card -->
+    <meta name="twitter:title" content="Free Simple Video Hosting & Upload">
+    <meta name="twitter:description" content="Easy and free video hosting. Upload and share your videos with no hassle.">
+            <title>Videy &#8212; Free and Simple Video Hosting</title>
+        <link rel="icon" type="image/x-icon" href="https://videy.co/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #fff;
+            color: #111;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 32px 40px 0 40px;
+            box-sizing: border-box;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -1px;
+        }
+        .header-right {
+            font-size: 15px;
+            color: #222;
+        }
+        .center-content {
+            width: 100vw;
+            position: absolute;
+            left: 0;
+            top: 16vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .main-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 1rem;
+            color: #444;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .upload-btn-main, .progress-bar {
+            background: linear-gradient(180deg, #222 0%, #111 100%);
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 36px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            min-width: 220px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .upload-btn-main:hover {
+            background: #333;
+        }
+        .progress-bar {
+            cursor: default;
+            pointer-events: none;
+        }
+        .footer {
+            font-size: 13px;
+            color: #302f2f;
+            margin-top: 64px;
+            text-align: center;
+            margin-top: auto;
+            padding: 32px 16px;
+        }
+        .footer-links {
+            margin-left: 10px;
+        }
+        .video-player-wrap {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .video-box {
+            margin-top: 40px;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            max-width: 700px;
+            width: 90vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .video-box video {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #000;
+            border-radius: 16px 16px 0 0;
+        }
+        .video-actions {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 18px 0 10px 0;
+        }
+        .video-action-btn {
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 18px;
+            font-size: 15px;
+            color: #222;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .video-action-btn:hover {
+            background: #e0e0e0;
+        }
+        .video-error {
+            color: #b00;
+            background: #fff0f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px auto 0 auto;
+            max-width: 500px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        /* Modern button animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+        }
+        
+        .download-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Popup styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .popup-content {
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: visible;
+            position: relative;
+            box-shadow: none;
+            animation: popupSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes popupSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .popup-close {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+            z-index: 10000;
+        }
+        
+        .popup-close:hover {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+        }
+        
+        .popup-close:active {
+            transform: scale(0.95);
+        }
+    </style>
+
 </head>
-<body class="bg-gray-900 text-white font-sans">
-
-    <!-- Header -->
-    <header class="bg-gray-800/50 backdrop-blur-sm sticky top-0 z-40">
-        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold text-red-600">MovieLix</a>
-            <div class="relative"><input type="text" id="search-input" placeholder="Cari film atau serial TV..." class="bg-gray-700 text-white px-4 py-2 rounded-full w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-red-600"></div>
-        </nav>
-    </header>
-
-    <!-- Konten Utama -->
-    <main class="container mx-auto px-4 py-8"><div id="content-sections"></div></main>
-
-    <!-- Footer -->
-    <footer class="text-center py-8 text-gray-500 border-t border-gray-800"><p>Dibuat dengan TMDb API.</p></footer>
-
-    <!-- MODAL PLAYER -->
-    <div id="player-modal" class="hidden fixed inset-0 bg-black/80 z-50 flex justify-center items-center p-4">
-        <div id="modal-content" class="bg-black w-full max-w-4xl rounded-lg shadow-2xl flex flex-col">
-            <!-- 1. Kontainer Iframe -->
-            <div class="aspect-video">
-                <div id="player-container" class="w-full h-full"></div>
-            </div>
-            
-            <!-- 2. Kontainer Pilihan Season (untuk TV) -->
-            <div id="tv-controls-container" class="p-2 bg-gray-900/70 hidden items-center gap-4">
-                <label for="season-select" class="text-sm font-semibold">Pilih Season:</label>
-                <select id="season-select" class="bg-gray-700 text-white rounded p-1 text-sm"></select>
-            </div>
-
-            <!-- 3. Kontainer Tombol Aksi -->
-            <div class="p-2 bg-gray-800/50 flex flex-col sm:flex-row justify-between items-center gap-2">
-                <div id="server-buttons" class="flex flex-wrap justify-center gap-2"></div>
-                <div id="download-button-container"></div>
-            </div>
-
-            <button id="close-modal-btn" class="absolute -top-3 -right-3 text-white bg-red-600 rounded-full h-8 w-8 flex items-center justify-center text-xl font-bold z-10">×</button>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <a href="/" class="logo" style="text-decoration:none;color:inherit;">videy</a>
         </div>
     </div>
-    
-    <script src="script.js" defer></script>
+    <div class="center-content">
+        <div class="main-title">Free and Simple Video Hosting</div>
+        <div class="subtitle">Get started without an account</div>
+        <form id="uploadForm" enctype="multipart/form-data" method="post">
+            <input type="file" name="file" id="fileInput" accept="video/mp4,video/quicktime" required style="display:none;">
+            <input type="hidden" name="visitorId" id="visitorId" value="j1CU2ezTzP8lENXXmE59BIFgdIixztO7VJ1R">
+            <button type="button" class="upload-btn-main" id="uploadBtn">Upload a Video</button>
+        </form>
+        <div id="errorMsg" style="color:#c00;margin-top:24px;font-size:17px;font-weight:400;"></div>
+    </div>
+    <div class="footer">
+        Copyright © 2025 TRUE DOMAIN PRIVACY, LLC <br />
+        <span class="footer-links">
+            <a href="https://videy.co/terms-of-service/" style="color:#888;text-decoration:underline;">Terms of Service</a> |
+            <a href="https://videy.co/report/" style="color:#888;text-decoration:underline;">Report Abuse</a>
+        </span>
+    </div>
+    <script>
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadForm = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('fileInput');
+    const visitorId = document.getElementById('visitorId');
+    const centerContent = document.querySelector('.center-content');
+    const errorMsg = document.getElementById('errorMsg');
+
+    function triggerUpload() {
+        fileInput.value = '';
+        errorMsg.textContent = '';
+        fileInput.click();
+    }
+
+    uploadBtn.addEventListener('click', triggerUpload);
+
+    fileInput.addEventListener('change', function() {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            
+            // Log detailed file information
+            console.log('File Details:', {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                lastModified: new Date(file.lastModified).toISOString(),
+                extension: file.name.split('.').pop().toLowerCase()
+            });
+
+            // Validate file name
+            const fileName = file.name;
+            const invalidChars = /[<>:"/\\|?*\x00-\x1F]/g;
+            if (invalidChars.test(fileName)) {
+                errorMsg.textContent = 'Error: File name contains invalid characters';
+                console.error('Invalid file name:', fileName);
+                return;
+            }
+
+            // Check file size
+            if (file.size === 0) {
+                errorMsg.textContent = 'Error: File is empty';
+                console.error('Empty file');
+                return;
+            }
+
+            if (file.size > 99 * 1024 * 1024) {
+                errorMsg.textContent = 'Error: too large, please upload a file less than 100MB';
+                return;
+            }
+
+            // Check file type
+            const allowedTypes = ['video/mp4', 'video/quicktime'];
+            if (!allowedTypes.includes(file.type)) {
+                errorMsg.textContent = 'Error: Invalid file type. Only MP4 and MOV files are allowed.';
+                console.error('Invalid file type:', file.type);
+                return;
+            }
+
+            errorMsg.textContent = '';
+            
+            // Ganti tombol dengan progress bar
+            const progressBar = document.createElement('div');
+            progressBar.className = 'progress-bar';
+            progressBar.textContent = '0%';
+            uploadBtn.replaceWith(progressBar);
+
+            const formData = new FormData(uploadForm);
+            
+            // Ensure visitorId is set
+            if (!visitorId.value) {
+                visitorId.value = 'gOoE2EPKDmXgSw1UxzOv6ytgMhnmCximrjBC';
+            }
+
+            // Validate form data before sending
+            if (!formData.has('file') || !formData.has('visitorId')) {
+                console.error('Form data validation failed:', {
+                    hasFile: formData.has('file'),
+                    hasVisitorId: formData.has('visitorId'),
+                    visitorId: visitorId.value
+                });
+                errorMsg.textContent = 'Error: Form data is incomplete';
+                return;
+            }
+            
+            // Log form data untuk debugging
+            console.log('Form Data Contents:');
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ': ' + (pair[1] instanceof File ? 
+                    `File(${pair[1].name}, ${pair[1].type}, ${pair[1].size} bytes)` : 
+                    pair[1]));
+            }
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', window.location.href, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.timeout = 300000; // 5 menit timeout
+            
+            let processingShown = false;
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    progressBar.textContent = percent + '%';
+                    console.log('Upload Progress:', percent + '%');
+                    if (percent >= 100 && !processingShown) {
+                        processingShown = true;
+                        setTimeout(() => {
+                            progressBar.textContent = 'Processing...';
+                        }, 300);
+                    }
+                }
+            };
+            xhr.onload = function() {
+                console.log('Response Status:', xhr.status);
+                console.log('Response Headers:', xhr.getAllResponseHeaders());
+                console.log('Response Text:', xhr.responseText);
+                
+                if (xhr.status === 200) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        if (data.success) {
+                            window.location.href = data.url;
+                        } else {
+                            progressBar.textContent = 'Error';
+                            errorMsg.textContent = data.error || 'Upload failed.';
+                            console.error('Upload failed:', data.error);
+                            setTimeout(() => window.location.reload(), 2000);
+                        }
+                    } catch (e) {
+                        console.error('Parse error:', e);
+                        progressBar.textContent = 'Error';
+                        errorMsg.textContent = 'Upload failed.';
+                        setTimeout(() => window.location.reload(), 2000);
+                    }
+                } else {
+                    console.error('HTTP error:', xhr.status);
+                    progressBar.textContent = 'Error';
+                    errorMsg.textContent = 'Upload failed.';
+                    setTimeout(() => window.location.reload(), 2000);
+                }
+            };
+            xhr.onerror = function(e) {
+                console.error('XHR error:', e);
+                progressBar.textContent = 'Error';
+                errorMsg.textContent = 'Upload failed.';
+                setTimeout(() => window.location.reload(), 2000);
+            };
+            xhr.ontimeout = function() {
+                console.error('Upload timeout');
+                progressBar.textContent = 'Error';
+                errorMsg.textContent = 'Upload timeout. Please try again.';
+                setTimeout(() => window.location.reload(), 2000);
+            };
+            xhr.send(formData);
+        }
+    });
+    </script>
+   <!-- Histats.com  START  (aync)-->
+<script type="text/javascript">var _Hasync= _Hasync|| [];
+_Hasync.push(['Histats.start', '1,4952780,4,0,0,0,00010000']);
+_Hasync.push(['Histats.fasi', '1']);
+_Hasync.push(['Histats.track_hits', '']);
+(function() {
+var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+hs.src = ('//s10.histats.com/js15_as.js');
+(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+})();</script>
+<noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?4952780&101" alt="" border="0"></a></noscript>
+<!-- Histats.com  END  -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"rayId":"9696336ace05fe23","version":"2025.7.0","r":1,"token":"454b46a20a8540268627829056478a28","serverTiming":{"name":{"cfExtPri":true,"cfEdge":true,"cfOrigin":true,"cfL4":true,"cfSpeedBrain":true,"cfCacheStatus":true}}}' crossorigin="anonymous"></script>
 </body>
 </html>
